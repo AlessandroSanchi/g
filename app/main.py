@@ -72,16 +72,18 @@ def submit_score():
     conn = db.get_db()
     cur = conn.cursor()
     # Keep only the best (maximum) score per user. If the new time is greater, update; otherwise ignore.
-    cur.execute('SELECT time FROM scores WHERE user_id = ?', (session['user_id'],))
+    cur.execute('SELECT MAX(time) as time FROM scores WHERE user_id = ?', (session['user_id'],))
     row = cur.fetchone()
     now = datetime.utcnow().isoformat()
-    if row is None:
+    existing = None
+    if row is not None:
+        existing = row['time']
+    if row is None or existing is None:
         cur.execute('INSERT INTO scores (user_id, time, created_at) VALUES (?, ?, ?)',
                     (session['user_id'], time_val, now))
         conn.commit()
         return jsonify({'status': 'saved', 'action': 'inserted'})
     else:
-        existing = row['time']
         if time_val > existing:
             cur.execute('UPDATE scores SET time = ?, created_at = ? WHERE user_id = ?',
                         (time_val, now, session['user_id']))

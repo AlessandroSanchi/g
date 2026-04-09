@@ -7,3 +7,68 @@ canvas { background: #111; display:block; border:4px solid #333; }
 .container { max-width:600px; margin:40px auto; padding:20px; background:#fff; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
 .error { color: red; }
 button { padding:8px 12px; }
+
+/* Bottom bar with controls and survival leaderboard */
+.bottombar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 12px 20px;
+	margin: 0 20px 20px 20px;
+	gap: 16px;
+}
+.bottombar .controls {
+	font-size: 14px;
+	color: #222;
+}
+.ability-circle {
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	background: #222; /* base color, JS will override with conic-gradient */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+	transition: box-shadow 160ms ease, transform 120ms ease;
+}
+.ability-circle:hover { transform: translateY(-2px); }
+.ability-circle::after{
+	content: '';
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	background: #0b0b0b;
+	box-shadow: inset 0 1px 2px rgba(255,255,255,0.03);
+}
+.ability-circle.ready::after{
+	background: radial-gradient(circle at 30% 30%, #b39ddb, #7b1fa2 60%);
+	box-shadow: 0 0 10px rgba(123,31,162,0.6);
+}
+
+/* God mode toggle (fixed bottom-right) */
+.god-toggle{
+	position: fixed;
+	right: 18px;
+	bottom: 18px;
+	background: rgba(10,10,10,0.9);
+	color: #fff;
+	padding: 8px 10px;
+	border-radius: 8px;
+	font-size: 13px;
+	box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+	z-index: 1200;
+}
+.god-toggle input[type="checkbox"]{ transform: translateY(1px); margin-right:6px; }
+.survival-box {
+	background: #000; /* sfondo nero per visibilità */
+	color: #fff;
+	padding: 12px 14px;
+	border-radius: 8px;
+	min-width: 240px;
+	box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+	border: 2px solid #7b1fa2; /* bordo viola */
+}
+.survival-box h4 { margin:0 0 8px 0; font-size:16px; }
+.survival-box ol { margin:0; padding-left:18px; }

@@ -1,4 +1,4 @@
-body { font-family: Inter, Arial, sans-serif; margin: 0; background: radial-gradient(circle at 10% 10%, #081018 0%, #051019 40%, #031018 100%); color:#e6eef6 }
+body { font-family: Inter, Arial, sans-serif; margin: 0; background: radial-gradient(circle at 10% 10%, #081018 0%, #902ed1 40%, #2e90ce 100%); color:#e6eef6 }
 .topbar { display:flex; justify-content:space-between; align-items:center; padding:12px 22px; background:linear-gradient(90deg,#071122,#0e1f2b); color:#dbeffd; box-shadow:0 2px 10px rgba(0,0,0,0.5) }
 .game-area { display:flex; gap:20px; padding:24px; align-items:flex-start }
 canvas { background: transparent; display:block; border:6px solid rgba(255,255,255,0.03); box-shadow:0 6px 30px rgba(0,0,0,0.6); }

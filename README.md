@@ -1,8 +1,8 @@
-# Arena di Sopravvivenza — Gioco di sopravvivenza (Flask + Canvas)
+
 
 ## Descrizione
 
-"Arena di Sopravvivenza" è un semplice gioco di sopravvivenza implementato con Canvas/JavaScript sul frontend e Flask come backend. L'obiettivo è sopravvivere il più a lungo possibile evitando nemici e proiettili: il tempo di sopravvivenza viene registrato e salvato nella classifica.
+"Circles madness" è un semplice gioco di sopravvivenza implementato con Canvas/JavaScript sul frontend e Flask come backend. L'obiettivo è sopravvivere il più a lungo possibile evitando nemici e proiettili: il tempo di sopravvivenza viene registrato e salvato nella classifica.
 
 Funzionalità principali:
 - autenticazione (registrazione/login)

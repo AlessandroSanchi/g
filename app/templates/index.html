@@ -10,25 +10,24 @@
     <div>Connesso come: <strong>{{ username }}</strong></div>
     <div><a href="/logout">Disconnetti</a></div>
   </div>
+
+  <div class="leaderboard-panel">
+  <h3>Records</h3>
+  <ol id="leaderboardList"></ol>
+  </div>
   <div class="game-area">
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <div class="hud">
-      <div>Time: <span id="timer">0.000</span>s</div>
-      <div id="status"></div>
-      <button id="resetBtn">Reset</button>
-    </div>
-    <div class="leaderboard-panel">
-      <h3>Records</h3>
-      <ol id="leaderboardList"></ol>
+    <div class="center-area">
+      <div class="canvas-wrap">
+        <canvas id="gameCanvas" width="900" height="700"></canvas>
+        <div class="hud">
+          <div>Time: <span id="timer">0.000</span>s</div>
+          <div id="status"></div>
+          <button id="resetBtn">Reset</button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="bottombar">
-    <div class="controls">
-      <strong>Comandi:</strong> Frecce / WASD — Muoviti &nbsp; | &nbsp; <strong>R</strong> — Reset &nbsp; | &nbsp; <strong>P</strong> — Abilità
-    </div>
-    <div id="timeAbility" class="ability-circle" title="Fermo-tempo (P)"></div>
-  </div>
 
   <script>const CURRENT_USER = "{{ username }}";</script>
   <script src="/static/js/game.js"></script>

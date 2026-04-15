@@ -1,24 +1,28 @@
 <!doctype html>
-<html>
+<html lang="it">
 <head>
   <meta charset="utf-8">
-  <title>Circles madness</title>
+  <title>Circles Madness</title>
   <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
+
   <div class="topbar">
     <div>Connesso come: <strong>{{ username }}</strong></div>
     <div><a href="/logout">Disconnetti</a></div>
   </div>
 
-  <div class="leaderboard-panel">
-  <h3>Records</h3>
-  <ol id="leaderboardList"></ol>
-  </div>
   <div class="game-area">
+
+    <div class="leaderboard-panel">
+      <h3>Records</h3>
+      <ol id="leaderboardList"></ol>
+    </div>
+
     <div class="center-area">
       <div class="canvas-wrap">
         <canvas id="gameCanvas" width="900" height="700"></canvas>
+
         <div class="hud">
           <div>Time: <span id="timer">0.000</span>s</div>
           <div id="status"></div>
@@ -26,14 +30,42 @@
         </div>
       </div>
     </div>
+
   </div>
 
-
-  <script>const CURRENT_USER = "{{ username }}";</script>
-  <script src="/static/js/game.js"></script>
-  <!-- God mode toggle (bottom-right) -->
+  <!-- God mode toggle -->
   <div id="godToggle" class="god-toggle">
-    <label><input type="checkbox" id="godCheckbox"> God Mode</label>
+    <label>
+      <input type="checkbox" id="godCheckbox"> God Mode
+    </label>
   </div>
+
+  <script>
+    const CURRENT_USER = "{{ username }}";
+  </script>
+  <script>
+    // Load either the original canvas game or the Phaser version depending on the URL
+    (function(){
+      const usePhaser = window.location.search.includes('phaser=1');
+      window.USE_PHASER = usePhaser;
+      if(usePhaser){
+        // load Phaser then our phaser script
+        const s1 = document.createElement('script');
+        s1.src = 'https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js';
+        s1.onload = ()=>{
+          const s2 = document.createElement('script');
+          s2.src = '/static/js/phaser_game.js';
+          document.body.appendChild(s2);
+        };
+        document.body.appendChild(s1);
+      } else {
+        // load the original canvas game
+        const s = document.createElement('script');
+        s.src = '/static/js/game.js';
+        document.body.appendChild(s);
+      }
+    })();
+  </script>
+
 </body>
 </html>

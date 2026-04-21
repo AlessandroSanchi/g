@@ -3,7 +3,9 @@
    time-stop ability (P), god mode, reset button, timer, score submission and leaderboard fetch.
 */
 
-if (!window.location.search.includes('phaser=1')) {
+// Run when the page requests the Phaser game. The page sets window.USE_PHASER = true
+// when it prefers Phaser; otherwise legacy URL param `?phaser=1` is also supported.
+if (!window.USE_PHASER && !window.location.search.includes('phaser=1')) {
   // not in phaser mode
 } else {
   // hide original canvas

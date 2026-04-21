@@ -44,26 +44,20 @@
     const CURRENT_USER = "{{ username }}";
   </script>
   <script>
-    // Load either the original canvas game or the Phaser version depending on the URL
+    // Prefer Phaser-based game by default (fallback to original canvas left out if missing).
+    // We set a global flag so `phaser_game.js` can decide to run.
     (function(){
-      const usePhaser = window.location.search.includes('phaser=1');
+      const usePhaser = true; // prefer Phaser version
       window.USE_PHASER = usePhaser;
-      if(usePhaser){
-        // load Phaser then our phaser script
-        const s1 = document.createElement('script');
-        s1.src = 'https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js';
-        s1.onload = ()=>{
-          const s2 = document.createElement('script');
-          s2.src = '/static/js/phaser_game.js';
-          document.body.appendChild(s2);
-        };
-        document.body.appendChild(s1);
-      } else {
-        // load the original canvas game
-        const s = document.createElement('script');
-        s.src = '/static/js/game.js';
-        document.body.appendChild(s);
-      }
+      // load Phaser then our phaser script
+      const s1 = document.createElement('script');
+      s1.src = 'https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js';
+      s1.onload = ()=>{
+        const s2 = document.createElement('script');
+        s2.src = '/static/js/phaser_game.js';
+        document.body.appendChild(s2);
+      };
+      document.body.appendChild(s1);
     })();
   </script>
 

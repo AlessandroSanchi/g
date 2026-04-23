@@ -5,6 +5,7 @@
   <title>Circles Madness</title>
   <link rel="stylesheet" href="/static/css/styles.css">
 </head>
+
 <body>
 
   <div class="topbar">
@@ -20,41 +21,30 @@
     </div>
 
     <div class="center-area">
-        <div class="canvas-wrap">
+      <div class="canvas-wrap">
         <canvas id="gameCanvas" width="900" height="700"></canvas>
-
-        <div class="hud">
-          <div>Time: <span id="timer">0.000</span>s</div>
-          <div id="status"></div>
-          <button id="resetBtn">Reset</button>
-        </div>
       </div>
     </div>
 
   </div>
 
-  <!-- God mode toggle -->
-  <div id="godToggle" class="god-toggle">
-    <label>
-      <input type="checkbox" id="godCheckbox"> God Mode
-    </label>
-  </div>
-
   <script>
     const CURRENT_USER = "{{ username }}";
   </script>
+
   <script>
-    // Always load Phaser and the Phaser-based game. The game will use the existing
-    // <canvas id="gameCanvas"> so the canvas position in the layout won't change.
     (function(){
       window.USE_PHASER = true;
+
       const s1 = document.createElement('script');
       s1.src = 'https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js';
-      s1.onload = ()=>{
+
+      s1.onload = () => {
         const s2 = document.createElement('script');
         s2.src = '/static/js/phaser_game.js';
         document.body.appendChild(s2);
       };
+
       document.body.appendChild(s1);
     })();
   </script>

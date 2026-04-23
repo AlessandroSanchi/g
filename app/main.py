@@ -63,29 +63,30 @@ def submit_score():
     if 'user_id' not in session:
         return jsonify({'error': 'unauthenticated'}), 401
     data = request.get_json()
-    if not data or 'time' not in data:
+    # accept either 'time' or 'score' from the client for compatibility
+    if not data or ('time' not in data and 'score' not in data):
         return jsonify({'error': 'invalid payload'}), 400
     try:
-        time_val = float(data['time'])
+        time_val = float(data.get('time', data.get('score')))
     except (ValueError, TypeError):
         return jsonify({'error': 'invalid time'}), 400
     conn = db.get_db()
     cur = conn.cursor()
     # Keep only the best (maximum) score per user. If the new time is greater, update; otherwise ignore.
-    cur.execute('SELECT MAX(time) as time FROM scores WHERE user_id = ?', (session['user_id'],))
+    cur.execute('SELECT MAX(score) as max_score FROM scores WHERE user_id = ?', (session['user_id'],))
     row = cur.fetchone()
     now = datetime.utcnow().isoformat()
     existing = None
     if row is not None:
-        existing = row['time']
+        existing = row['max_score']
     if row is None or existing is None:
-        cur.execute('INSERT INTO scores (user_id, time, created_at) VALUES (?, ?, ?)',
+        cur.execute('INSERT INTO scores (user_id, score, created_at) VALUES (?, ?, ?)',
                     (session['user_id'], time_val, now))
         conn.commit()
         return jsonify({'status': 'saved', 'action': 'inserted'})
     else:
         if time_val > existing:
-            cur.execute('UPDATE scores SET time = ?, created_at = ? WHERE user_id = ?',
+            cur.execute('UPDATE scores SET score = ?, created_at = ? WHERE user_id = ?',
                         (time_val, now, session['user_id']))
             conn.commit()
             return jsonify({'status': 'saved', 'action': 'updated'})
@@ -99,17 +100,18 @@ def api_leaderboard():
     conn = db.get_db()
     cur = conn.cursor()
     cur.execute('''
-        SELECT u.username, MAX(s.time) as time, MAX(s.created_at) as created_at
+        SELECT u.username, MAX(s.score) as score, MAX(s.created_at) as created_at
         FROM scores s
         JOIN users u ON u.id = s.user_id
         GROUP BY u.username
-        ORDER BY time DESC
+        ORDER BY score DESC
         LIMIT ?
     ''', (limit,))
     rows = cur.fetchall()
     result = []
     for r in rows:
-        result.append({'username': r['username'], 'time': r['time'], 'created_at': r['created_at']})
+        # return the numeric value under the key 'time' for frontend compatibility
+        result.append({'username': r['username'], 'time': r['score'], 'created_at': r['created_at']})
     return jsonify(result)
 
 @game_bp.route('/leaderboard')

@@ -31,9 +31,9 @@
     this.load.image('bg', 'static/assets/background.png');
 
     // fallback-safe single load
-   // this.load.image('ship', 'https://labs.phaser.io/assets/sprites/player.png');
-    //this.load.image('enemy', 'https://labs.phaser.io/assets/sprites/ufo.png');
-    //this.load.image('bullet', 'https://labs.phaser.io/assets/sprites/bullets/bullet7.png');
+    this.load.image('ship', 'assets//player.png');
+    this.load.image('enemy', 'assets//ufo.png');
+    this.load.image('bullet', 'static/assets/bullet.png');
   }
 
   function create() {

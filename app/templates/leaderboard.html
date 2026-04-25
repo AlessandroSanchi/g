@@ -1,34 +1,113 @@
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Leaderboard</title>
-  <link rel="stylesheet" href="/static/css/styles.css">
-</head>
+{% extends "base.html" %}
 
-<body>
-  <div class="container">
-    <h1>Leaderboard</h1>
+{% block title %}Leaderboard - Circles Madness{% endblock %}
 
-    <ol id="leaderboard"></ol>
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 offset-lg-1">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h3 class="mb-0">🏆 Classifica Globale</h3>
+            </div>
+            <div class="card-body">
+                <!-- Filtri -->
+                <div class="mb-4">
+                    <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="sort_by" id="sort_best" value="best_score" checked>
+                        <label class="btn btn-outline-primary" for="sort_best">📊 Miglior Score</label>
 
-    <p><a href="/">Back to game</a></p>
-  </div>
+                        <input type="radio" class="btn-check" name="sort_by" id="sort_games" value="total_games">
+                        <label class="btn btn-outline-primary" for="sort_games">🎮 Partite</label>
 
-  <script>
-    fetch('/api/leaderboard')
-      .then(response => response.json())
-      .then(data => {
-        const leaderboard = document.getElementById('leaderboard');
-        data.forEach(entry => {
-          const li = document.createElement('li');
-          li.textContent = `${entry.username} - ${entry.score}`;
-          leaderboard.appendChild(li);
+                        <input type="radio" class="btn-check" name="sort_by" id="sort_enemies" value="enemies_defeated">
+                        <label class="btn btn-outline-primary" for="sort_enemies">👾 Nemici</label>
+                    </div>
+                </div>
+
+                <!-- Leaderboard -->
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th style="width: 60px;">#</th>
+                                <th>Giocatore</th>
+                                <th style="text-align: right;">Miglior Score</th>
+                                <th style="text-align: right;">Partite</th>
+                                <th style="text-align: right;">Nemici Sconfitti</th>
+                                <th style="text-align: right;">Tempo Totale</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardTable">
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    Caricamento...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginazione -->
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center" id="paginationNav"></ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentPage = 1;
+const itemsPerPage = 20;
+
+function loadLeaderboard() {
+    const sortBy = document.querySelector('input[name="sort_by"]:checked').value;
+    const offset = (currentPage - 1) * itemsPerPage;
+
+    fetch(`/api/leaderboard?sort_by=${sortBy}&limit=${itemsPerPage}&offset=${offset}`)
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('leaderboardTable');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Nessun giocatore ancora</td></tr>';
+                return;
+            }
+
+            data.forEach((entry, index) => {
+                const rank = offset + index + 1;
+                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}`;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${medal}</strong></td>
+                    <td><strong>${entry.username}</strong></td>
+                    <td style="text-align: right;">${(entry.best_score || 0).toFixed(0)}</td>
+                    <td style="text-align: right;">${entry.total_games}</td>
+                    <td style="text-align: right;">${entry.enemies_defeated}</td>
+                    <td style="text-align: right;">${(entry.total_playtime || 0).toFixed(1)}s</td>
+                `;
+                tbody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error('Errore:', error);
+            document.getElementById('leaderboardTable').innerHTML = 
+                '<tr><td colspan="6" class="text-center text-danger">Errore nel caricamento</td></tr>';
         });
-      })
-      .catch(error => console.error('Error fetching leaderboard:', error));
+}
 
-  </script>
+// Carica la classifica quando cambia il filtro
+document.querySelectorAll('input[name="sort_by"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+        currentPage = 1;
+        loadLeaderboard();
+    });
+});
 
-</body>
-</html>
+// Carica la classifica iniziale
+loadLeaderboard();
+</script>
+{% endblock %}

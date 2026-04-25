@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Pattern Editor - Circles Madness{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">📝 Crea un Nuovo Pattern</h5>
+            </div>
+            <div class="card-body">
+                <form id="patternForm">
+                    <div class="mb-3">
+                        <label for="patternName" class="form-label">Nome Pattern</label>
+                        <input type="text" class="form-control" id="patternName" placeholder="Es: Tempesta di Fuoco" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="patternDesc" class="form-label">Descrizione</label>
+                        <textarea class="form-control" id="patternDesc" rows="2" placeholder="Descrivi il tuo pattern"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="patternDifficulty" class="form-label">Difficoltà</label>
+                        <select class="form-select" id="patternDifficulty">
+                            <option value="easy">Facile</option>
+                            <option value="normal" selected>Normale</option>
+                            <option value="hard">Difficile</option>
+                            <option value="insane">Impossibile</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="isPublic" checked>
+                            <label class="form-check-label" for="isPublic">
+                                Rendi pubblico (gli altri giocatori potranno giocarci)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="patternJSON" class="form-label">Dati Pattern (JSON)</label>
+                        <textarea class="form-control font-monospace" id="patternJSON" rows="8" placeholder='{"waves": [{"enemies": 5, "type": "basic"}]}' required></textarea>
+                        <small class="text-muted">Definisci il pattern in formato JSON</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">💾 Salva Pattern</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">📚 I Miei Pattern</h5>
+            </div>
+            <div class="card-body" id="myPatterns">
+                <p class="text-muted">Nessun pattern creato ancora</p>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">🌟 Pattern Popolari</h5>
+            </div>
+            <div class="card-body" id="popularPatterns">
+                <div class="text-center">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Carica i pattern popolari
+function loadPopularPatterns() {
+    fetch('/api/patterns?limit=5')
+        .then(r => r.json())
+        .then(data => {
+            const container = document.getElementById('popularPatterns');
+            container.innerHTML = '';
+
+            if (data.length === 0) {
+                container.innerHTML = '<p class="text-muted">Nessun pattern disponibile</p>';
+                return;
+            }
+
+            data.forEach(pattern => {
+                const div = document.createElement('div');
+                div.className = 'card card-sm mb-2';
+                div.innerHTML = `
+                    <div class="card-body p-2">
+                        <h6 class="card-title mb-1">${pattern.name}</h6>
+                        <small class="text-muted">${pattern.plays} giocate</small>
+                        <br>
+                        <small><span class="badge bg-${pattern.difficulty === 'easy' ? 'success' : pattern.difficulty === 'normal' ? 'info' : pattern.difficulty === 'hard' ? 'warning' : 'danger'}">${pattern.difficulty}</span></small>
+                        <button class="btn btn-xs btn-outline-primary mt-2 w-100" onclick="playPattern(${pattern.id})">Gioca</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        })
+        .catch(e => console.error(e));
+}
+
+function playPattern(patternId) {
+    fetch(`/api/patterns/${patternId}/play`, {
+        method: 'POST'
+    })
+    .then(r => r.json())
+    .then(data => {
+        alert('✅ Pattern caricato! Avvia il gioco per giocare');
+    })
+    .catch(e => alert('Errore: ' + e.message));
+}
+
+// Gestisci l'invio del form
+document.getElementById('patternForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    try {
+        const patternData = JSON.parse(document.getElementById('patternJSON').value);
+    } catch (err) {
+        alert('❌ Errore nel JSON: ' + err.message);
+        return;
+    }
+
+    const payload = {
+        name: document.getElementById('patternName').value,
+        description: document.getElementById('patternDesc').value,
+        difficulty: document.getElementById('patternDifficulty').value,
+        is_public: document.getElementById('isPublic').checked ? 1 : 0,
+        pattern_data: JSON.parse(document.getElementById('patternJSON').value)
+    };
+
+    fetch('/api/patterns', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('✅ Pattern salvato con successo!');
+            document.getElementById('patternForm').reset();
+        } else {
+            alert('❌ Errore: ' + (data.error || 'Sconosciuto'));
+        }
+    })
+    .catch(e => alert('❌ Errore: ' + e.message));
+});
+
+// Carica i pattern al load
+loadPopularPatterns();
+</script>
+{% endblock %}

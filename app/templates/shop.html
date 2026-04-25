@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Shop - Circles Madness{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1>🛍️ Shop</h1>
+            <div class="alert alert-info mb-0">
+                <strong>💰 Monete:</strong> <span id="userCoins" class="badge bg-warning text-dark">-</span>
+            </div>
+        </div>
+        <p class="lead">Acquista skin, potenziamenti e molto altro!</p>
+    </div>
+</div>
+
+<!-- Filtri per categoria -->
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="btn-group" role="group">
+            <input type="radio" class="btn-check" name="category" id="category_all" value="" checked>
+            <label class="btn btn-outline-primary" for="category_all">Tutti</label>
+
+            <input type="radio" class="btn-check" name="category" id="category_skin" value="skin">
+            <label class="btn btn-outline-primary" for="category_skin">🎨 Skin</label>
+
+            <input type="radio" class="btn-check" name="category" id="category_weapon" value="weapon">
+            <label class="btn btn-outline-primary" for="category_weapon">🔫 Armi</label>
+
+            <input type="radio" class="btn-check" name="category" id="category_boost" value="boost">
+            <label class="btn btn-outline-primary" for="category_boost">⚡ Potenziamenti</label>
+
+            <input type="radio" class="btn-check" name="category" id="category_other" value="other">
+            <label class="btn btn-outline-primary" for="category_other">Altro</label>
+        </div>
+    </div>
+</div>
+
+<!-- Griglia di articoli -->
+<div class="row" id="shopGrid">
+    <div class="col-12 text-center">
+        <span class="spinner-border" role="status" aria-hidden="true"></span>
+    </div>
+</div>
+
+<script>
+let currentCategory = '';
+
+function loadShopItems() {
+    const url = currentCategory ? `/api/shop/items?category=${currentCategory}` : '/api/shop/items';
+    
+    fetch(url)
+        .then(r => r.json())
+        .then(data => {
+            const grid = document.getElementById('shopGrid');
+            grid.innerHTML = '';
+
+            if (data.length === 0) {
+                grid.innerHTML = '<div class="col-12 text-center text-muted"><p>Nessun articolo disponibile in questa categoria</p></div>';
+                return;
+            }
+
+            data.forEach(item => {
+                const col = document.createElement('div');
+                col.className = 'col-md-4 col-lg-3 mb-4';
+                col.innerHTML = `
+                    <div class="card h-100 ${item.owned ? 'border-success' : ''}">
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                            <span style="font-size: 3em;">${item.sprite_url || '📦'}</span>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">${item.name}</h5>
+                            <p class="card-text small">${item.description || ''}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-warning text-dark">💰 ${item.price}</span>
+                                ${item.owned ? '<span class="badge bg-success">✓ Posseduto</span>' : ''}
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            ${item.owned ? 
+                                '<button class="btn btn-sm btn-secondary w-100" disabled>Già Acquistato</button>' :
+                                `<button class="btn btn-sm btn-primary w-100" onclick="buyItem(${item.id})">Compra</button>`
+                            }
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(col);
+            });
+
+            updateUserCoins();
+        })
+        .catch(e => {
+            console.error('Errore:', e);
+            document.getElementById('shopGrid').innerHTML = '<div class="col-12 text-center text-danger"><p>Errore nel caricamento</p></div>';
+        });
+}
+
+function updateUserCoins() {
+    // In un'implementazione reale, dovresti fetchare dal profilo
+    // Per ora mostriamo "?" finché non implementiamo l'endpoint
+    document.getElementById('userCoins').textContent = '?';
+}
+
+function buyItem(itemId) {
+    if (!confirm('Sei sicuro di voler comprare questo articolo?')) return;
+
+    fetch(`/api/shop/buy/${itemId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (r.ok) {
+            alert('✅ Acquisto completato!');
+            loadShopItems();
+        } else {
+            alert(`❌ Errore: ${data.error}`);
+        }
+    })
+    .catch(e => alert('Errore: ' + e.message));
+}
+
+// Event listeners per i filtri
+document.querySelectorAll('input[name="category"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        currentCategory = e.target.value;
+        loadShopItems();
+    });
+});
+
+// Carica gli articoli iniziali
+loadShopItems();
+</script>
+{% endblock %}

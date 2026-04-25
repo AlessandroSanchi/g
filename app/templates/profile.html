@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Profilo - Circles Madness{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <!-- Card Info Profilo -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">👤 {{ user.username }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>💰 Monete:</strong>
+                    <span class="badge bg-warning text-dark">{{ user.coins }}</span>
+                </div>
+                <div class="mb-3">
+                    <strong>🎮 Partite Giocate:</strong>
+                    <span class="badge bg-info">{{ user.total_games }}</span>
+                </div>
+                <div class="mb-3">
+                    <strong>👾 Nemici Sconfitti:</strong>
+                    <span class="badge bg-danger">{{ user.enemies_defeated }}</span>
+                </div>
+                <div class="mb-3">
+                    <strong>⏱️ Tempo Totale:</strong>
+                    <span class="badge bg-secondary">{{ "%.1f"|format(user.total_playtime) }}s</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiche Partite -->
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">📊 Statistiche</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <strong>Miglior Score:</strong>
+                    <span class="float-end">{{ "%.0f"|format(stats.best_score or 0) }}</span>
+                </div>
+                <div class="mb-2">
+                    <strong>Score Medio:</strong>
+                    <span class="float-end">{{ "%.0f"|format(stats.avg_score or 0) }}</span>
+                </div>
+                <div class="mb-2">
+                    <strong>Totale Partite:</strong>
+                    <span class="float-end">{{ stats.total_scores or 0 }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <!-- Achievement Sbloccati -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">🏆 Achievement Sbloccati ({{ achievements|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% if achievements %}
+                    <div class="row">
+                        {% for achievement in achievements %}
+                            <div class="col-md-6 mb-3">
+                                <div class="achievement-badge">
+                                    <h6>{{ achievement.name }}</h6>
+                                    <p class="small">{{ achievement.description }}</p>
+                                    <small class="text-muted">{{ achievement.unlocked_at|slice(0, 10) }}</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Nessun achievement sbloccato ancora. Continua a giocare!</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Oggetti Acquistati -->
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">🛍️ Oggetti Acquistati ({{ purchases|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% if purchases %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Categoria</th>
+                                    <th>Acquistato</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for purchase in purchases %}
+                                    <tr>
+                                        <td><strong>{{ purchase.name }}</strong></td>
+                                        <td><span class="badge bg-secondary">{{ purchase.category }}</span></td>
+                                        <td><small>{{ purchase.purchased_at|slice(0, 10) }}</small></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">Non hai ancora acquistato nulla. Visita lo <a href="/shop">Shop</a>!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.achievement-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.achievement-badge h6 {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.achievement-badge p {
+    margin-bottom: 0;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Armeria - Circles Madness{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <h1>⚔️ L'Armeria</h1>
+        <p class="lead">Scopri tutti i nemici, power-up e pattern disponibili nel gioco</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Nemici -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">👾 Nemici</h5>
+            </div>
+            <div class="card-body" id="enemiesContainer">
+                <div class="text-center">
+                    <span class="spinner-border" role="status" aria-hidden="true"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Power-Up -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">⚡ Power-Up</h5>
+            </div>
+            <div class="card-body" id="powerupsContainer">
+                <div class="text-center">
+                    <span class="spinner-border" role="status" aria-hidden="true"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12 mb-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">📋 Pattern di Gioco</h5>
+            </div>
+            <div class="card-body" id="patternsContainer">
+                <div class="text-center">
+                    <span class="spinner-border" role="status" aria-hidden="true"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Carica i nemici
+fetch('/api/armory/enemies')
+    .then(r => r.json())
+    .then(data => {
+        const container = document.getElementById('enemiesContainer');
+        container.innerHTML = '';
+        
+        if (data.length === 0) {
+            container.innerHTML = '<p class="text-muted">Nessun nemico disponibile</p>';
+            return;
+        }
+
+        data.forEach(enemy => {
+            const div = document.createElement('div');
+            div.className = 'card mb-2';
+            div.innerHTML = `
+                <div class="card-body">
+                    <h6 class="card-title">${enemy.name} <span class="badge bg-danger">${enemy.rarity}</span></h6>
+                    <p class="card-text small">${enemy.description || 'N/A'}</p>
+                    <div class="d-grid gap-2">
+                        <small>❤️ HP: ${enemy.hp} | ⚡ Speed: ${enemy.speed} | 🔫 Fire Rate: ${enemy.fire_rate}</small>
+                        <small>💥 Points: ${enemy.score_value}</small>
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    })
+    .catch(e => {
+        document.getElementById('enemiesContainer').innerHTML = '<p class="text-danger">Errore nel caricamento</p>';
+    });
+
+// Carica i power-up
+fetch('/api/armory/powerups')
+    .then(r => r.json())
+    .then(data => {
+        const container = document.getElementById('powerupsContainer');
+        container.innerHTML = '';
+        
+        if (data.length === 0) {
+            container.innerHTML = '<p class="text-muted">Nessun power-up disponibile</p>';
+            return;
+        }
+
+        data.forEach(pu => {
+            const div = document.createElement('div');
+            div.className = 'card mb-2';
+            div.innerHTML = `
+                <div class="card-body">
+                    <h6 class="card-title">${pu.name} <span class="badge bg-success">${pu.rarity}</span></h6>
+                    <p class="card-text small">${pu.description || 'N/A'}</p>
+                    <div class="d-grid gap-2">
+                        <small>⚙️ Effetto: ${pu.effect} | ⏱️ Durata: ${pu.duration}s</small>
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    })
+    .catch(e => {
+        document.getElementById('powerupsContainer').innerHTML = '<p class="text-danger">Errore nel caricamento</p>';
+    });
+
+// Carica i pattern
+fetch('/api/patterns')
+    .then(r => r.json())
+    .then(data => {
+        const container = document.getElementById('patternsContainer');
+        container.innerHTML = '';
+        
+        if (data.length === 0) {
+            container.innerHTML = '<p class="text-muted">Nessun pattern disponibile</p>';
+            return;
+        }
+
+        const html = `
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Difficoltà</th>
+                            <th>Giocate</th>
+                            <th>Rating</th>
+                            <th>Creatore</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map(p => `
+                            <tr>
+                                <td><strong>${p.name}</strong></td>
+                                <td><span class="badge bg-warning">${p.difficulty}</span></td>
+                                <td>${p.plays}</td>
+                                <td>${p.rating ? '⭐ ' + p.rating.toFixed(1) : 'N/A'}</td>
+                                <td>${p.user_id ? 'Community' : 'Official'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+        container.innerHTML = html;
+    })
+    .catch(e => {
+        document.getElementById('patternsContainer').innerHTML = '<p class="text-danger">Errore nel caricamento</p>';
+    });
+</script>
+{% endblock %}
